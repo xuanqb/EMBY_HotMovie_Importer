@@ -1,5 +1,3 @@
-﻿BeautifulSoup4
-configparser
+﻿configparser
 feedparser
 requests
-urllib3
