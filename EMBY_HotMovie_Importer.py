@@ -121,14 +121,14 @@ class Get_Detail(object):
                 elif emby_data and not box_id:
                     emby_id = emby_data["Items"][0]["Id"]
                     box_id = self.create_collection(box_name, emby_id)
-                    print(f"电影 '{movie_name}' 加入到合集成功.")
+                    print(f"影视 '{movie_name}' 加入到合集成功.")
                 elif emby_data:
                     emby_id = emby_data["Items"][0]["Id"]
                     added_to_collection = self.add_movie_to_collection(emby_id, box_id)
                     if added_to_collection:
-                        print(f"电影 '{movie_name}' 加入到合集成功.")
+                        print(f"影视 '{movie_name}' 加入到合集成功.")
                     else:
-                        print(f"电影 '{movie_name}' 加入到合集内失败.")
+                        print(f"影视 '{movie_name}' 加入到合集内失败.")
                 else:
                     self.noexist.append(movie_name)
 
