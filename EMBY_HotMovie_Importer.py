@@ -50,14 +50,19 @@ class Get_Detail(object):
     def search_emby_by_name_and_year(self, db_movie: DbMovie):
         name = db_movie.name
         yearParam = f"&Years={db_movie.year}"
+        includeItemTypes = "IncludeItemTypes=movie"
         # 删除季信息
         if db_movie.type == "tv":
             yearParam = ''
-        url = f"{self.emby_server}/emby/Items?api_key={self.emby_api_key}&Recursive=true&IncludeItemTypes=movie,Series&SearchTerm={name}{yearParam}"
+            includeItemTypes = "IncludeItemTypes=Series"
+        url = f"{self.emby_server}/emby/Items?api_key={self.emby_api_key}&Recursive=true&{includeItemTypes}&SearchTerm={name}{yearParam}"
         response = requests.get(url)
         data = response.json()
         if response.status_code == 200 and data.get('TotalRecordCount', 0) > 0:
-            return data
+            for item in data.get('Items', []):
+                if item['Name'] == name:
+                    return item
+            return None
         else:
             return None
 
@@ -119,11 +124,11 @@ class Get_Detail(object):
                 if movie_name in self.noexist:
                     continue
                 elif emby_data and not box_id:
-                    emby_id = emby_data["Items"][0]["Id"]
-                    box_id = self.create_collection(box_name, emby_id)
+                    emby_id = emby_data["Id"]
+                    emby_box.box_id = self.create_collection(box_name, emby_id)
                     print(f"影视 '{movie_name}' 加入到合集成功.")
                 elif emby_data:
-                    emby_id = emby_data["Items"][0]["Id"]
+                    emby_id = emby_data["Id"]
                     added_to_collection = self.add_movie_to_collection(emby_id, box_id)
                     if added_to_collection:
                         print(f"影视 '{movie_name}' 加入到合集成功.")
