@@ -41,6 +41,8 @@ class Get_Detail(object):
         self.emby_server = config.get('Server', 'emby_server')
         self.emby_api_key = config.get('Server', 'emby_api_key')
         self.rsshub_server = config.get('Server', 'rsshub_server')
+        self.ignore_played = config.getboolean('Extra', 'ignore_played', fallback=False)
+        self.emby_user_id = config.get('Extra', 'emby_user_id', fallback='')
         self.rss_ids = config.get('Collection', 'rss_ids').split(',')
 
         self.headers = {
@@ -51,11 +53,17 @@ class Get_Detail(object):
         name = db_movie.name
         yearParam = f"&Years={db_movie.year}"
         includeItemTypes = "IncludeItemTypes=movie"
+        ignore_played = ""
+        emby_user_id = ""
         # 删除季信息
         if db_movie.type == "tv":
             yearParam = ''
             includeItemTypes = "IncludeItemTypes=Series"
-        url = f"{self.emby_server}/emby/Items?api_key={self.emby_api_key}&Recursive=true&{includeItemTypes}&SearchTerm={name}{yearParam}"
+        if self.ignore_played:
+            # 不查询播放过的
+            ignore_played = "&Filters=IsUnplayed"
+            emby_user_id = f"Users/{self.emby_user_id}"
+        url = f"{self.emby_server}/emby/{emby_user_id}/Items?api_key={self.emby_api_key}{ignore_played}&Recursive=true&{includeItemTypes}&SearchTerm={name}{yearParam}"
         response = requests.get(url)
         data = response.json()
         if response.status_code == 200 and data.get('TotalRecordCount', 0) > 0:
