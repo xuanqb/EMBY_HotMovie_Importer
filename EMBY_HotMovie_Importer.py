@@ -1,3 +1,4 @@
+import os
 import urllib.parse
 from configparser import ConfigParser
 
@@ -10,6 +11,13 @@ from typing import List
 config = ConfigParser()
 with open('config.conf', encoding='utf-8') as f:
     config.read_file(f)
+use_proxy = config.getboolean('Proxy', 'use_proxy', fallback=False)
+if use_proxy:
+    os.environ['http_proxy'] = config.get('Proxy', 'http_proxy', fallback='http://127.0.0.1:7890')
+    os.environ['https_proxy'] = config.get('Proxy', 'https_proxy', fallback='http://127.0.0.1:7890')
+else:
+    os.environ.pop('http_proxy', None)
+    os.environ.pop('https_proxy', None)
 
 
 class DbMovie:
